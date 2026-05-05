@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yang Wenjie · Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Roboto:wght@300;400;500;700&family=Noto+Sans+SC:wght@300;400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:#4285F4; --red:#EA4335; --yellow:#FBBC04; --green:#34A853;
+    --surface:#fff; --surface2:#f8f9fa; --text:#202124; --text2:#5f6368; --text3:#80868b;
+    --border:#dadce0; --radius:16px; --radius-full:100px;
+    --font:'Roboto','Noto Sans SC',sans-serif;
+    --display:'Google Sans','Noto Sans SC',sans-serif;
+    --mono:'Roboto Mono','Consolas',monospace;
+    --shadow1:0 1px 2px rgba(60,64,67,.3),0 1px 3px 1px rgba(60,64,67,.15);
+    --shadow2:0 1px 2px rgba(60,64,67,.3),0 2px 6px 2px rgba(60,64,67,.15);
+    --shadow3:0 1px 3px rgba(60,64,67,.3),0 4px 8px 3px rgba(60,64,67,.15);
+    --shadow4:0 2px 4px rgba(60,64,67,.3),0 8px 16px 4px rgba(60,64,67,.15);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font);background:var(--surface);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;cursor:default}
+
+  /* Custom cursor */
+  .cursor{width:24px;height:24px;border:2px solid var(--blue);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transition:width .2s,height .2s,border-color .2s;transform:translate(-50%,-50%);mix-blend-mode:normal;opacity:0;will-change:transform}
+  .cursor.hover{width:48px;height:48px;border-color:var(--green);background:rgba(52,168,83,.08)}
+  .cursor.visible{opacity:1}
+  @media(pointer:coarse){.cursor{display:none}}
+
+  /* Color bar */
+  .color-bar{height:4px;background:linear-gradient(90deg,var(--blue) 0 25%,var(--red) 25% 50%,var(--yellow) 50% 75%,var(--green) 75% 100%);position:fixed;top:0;left:0;right:0;z-index:100}
+
+  /* Scroll header */
+  .nav-bar{position:fixed;top:4px;left:0;right:0;z-index:99;padding:12px 24px;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;justify-content:space-between;align-items:center}
+  .nav-bar.scrolled{background:rgba(255,255,255,.8);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+  .nav-logo{font-family:var(--display);font-size:18px;font-weight:500;color:var(--text);opacity:0;transition:opacity .3s}
+  .nav-bar.scrolled .nav-logo{opacity:1}
+  .nav-links{display:flex;gap:24px;list-style:none}
+  .nav-links a{font-size:13px;color:var(--text2);text-decoration:none;font-weight:500;transition:color .15s}
+  .nav-links a:hover{color:var(--blue)}
+
+  .container{max-width:960px;margin:0 auto;padding:0 24px}
+
+  /* ===== HERO ===== */
+  .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;padding:120px 0 80px}
+  .hero-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  /* Floating shapes */
+  .shape{position:absolute;border-radius:50%;opacity:.06;animation:float 20s ease-in-out infinite}
+  .shape:nth-child(1){width:500px;height:500px;background:var(--blue);top:-10%;left:-15%;animation-delay:0s}
+  .shape:nth-child(2){width:400px;height:400px;background:var(--green);bottom:-15%;right:-10%;animation-delay:-5s}
+  .shape:nth-child(3){width:300px;height:300px;background:var(--yellow);top:40%;left:60%;animation-delay:-10s}
+  .shape:nth-child(4){width:200px;height:200px;background:var(--red);top:10%;right:20%;animation-delay:-15s}
+  @keyframes float{0%,100%{transform:translate(0,0) scale(1)}25%{transform:translate(30px,-30px) scale(1.05)}50%{transform:translate(-20px,20px) scale(.95)}75%{transform:translate(-30px,-10px) scale(1.03)}}
+
+  .hero-content{position:relative;z-index:2}
+  .hero-avatar{width:104px;height:104px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#7baaf7 50%,var(--green));margin:0 auto 28px;display:flex;align-items:center;justify-content:center;font-size:46px;color:#fff;font-family:var(--display);font-weight:500;box-shadow:0 8px 24px rgba(66,133,244,.25);position:relative}
+  .hero-avatar::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:2px dashed var(--border);animation:spin 20s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .hero h1{font-family:var(--display);font-size:clamp(36px,6vw,56px);font-weight:500;letter-spacing:-.03em;color:var(--text);margin-bottom:12px}
+  .hero h1 .gradient-text{background:linear-gradient(135deg,var(--blue),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+  /* Rotating tagline */
+  .hero-tagline{font-size:22px;color:var(--text2);font-weight:400;height:32px;overflow:hidden;margin-bottom:8px}
+  .hero-tagline .word{display:block;animation:rotateWord 9s ease-in-out infinite}
+  @keyframes rotateWord{0%,20%{transform:translateY(0)}25%,45%{transform:translateY(-32px)}50%,70%{transform:translateY(-64px)}75%,95%{transform:translateY(-96px)}100%{transform:translateY(0)}}
+
+  .hero-sub{font-size:15px;color:var(--text3);margin-bottom:36px}
+  .hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:var(--radius-full);font-size:14px;font-weight:500;text-decoration:none;font-family:var(--display);transition:all .25s cubic-bezier(.4,0,.2,1);cursor:none;border:none;position:relative;overflow:hidden}
+  .btn-filled{background:var(--blue);color:#fff;box-shadow:0 1px 3px rgba(66,133,244,.4)}
+  .btn-filled:hover{background:#1a73e8;box-shadow:0 4px 12px rgba(66,133,244,.5);transform:translateY(-2px)}
+  .btn-outlined{background:var(--surface);color:var(--blue);border:1px solid var(--border)}
+  .btn-outlined:hover{background:#e8f0fe;border-color:var(--blue);transform:translateY(-2px)}
+
+  /* ===== SECTIONS ===== */
+  .section{padding:64px 0}
+  .section-label{font-family:var(--display);font-size:12px;font-weight:500;color:var(--blue);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+  .section-title{font-family:var(--display);font-size:36px;font-weight:500;letter-spacing:-.02em;margin-bottom:8px}
+  .section-sub{font-size:16px;color:var(--text3);margin-bottom:48px;max-width:480px}
+
+  /* ===== SKILLS ===== */
+  .skills-grid{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{display:inline-flex;align-items:center;padding:8px 18px;border-radius:var(--radius-full);font-size:13px;font-weight:400;background:var(--surface2);color:var(--text2);border:1px solid var(--border);transition:all .25s cubic-bezier(.4,0,.2,1);user-select:none}
+  .chip:hover{transform:translateY(-3px);box-shadow:var(--shadow2)}
+  .chip--lang{background:#e8f0fe;color:var(--blue);border-color:#d2e3fc}.chip--lang:hover{box-shadow:0 4px 12px rgba(66,133,244,.2)}
+  .chip--tool{background:#e6f4ea;color:var(--green);border-color:#ceead6}.chip--tool:hover{box-shadow:0 4px 12px rgba(52,168,83,.2)}
+  .chip--std{background:#fef7e0;color:#e37400;border-color:#feefc3}.chip--std:hover{box-shadow:0 4px 12px rgba(251,188,4,.2)}
+
+  /* ===== PROJECTS ===== */
+  .projects-grid{display:grid;gap:28px;perspective:1000px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .4s cubic-bezier(.4,0,.2,1);transform-style:preserve-3d;position:relative}
+  .card:hover{border-color:transparent}
+  .card-top-bar{height:4px}
+  .card:nth-child(1) .card-top-bar{background:var(--blue)}
+  .card:nth-child(2) .card-top-bar{background:var(--green)}
+  .card:nth-child(3) .card-top-bar{background:var(--yellow)}
+  .card-body{padding:32px 36px}
+  .card-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+  .card-title{font-family:var(--display);font-size:22px;font-weight:500;letter-spacing:-.01em}
+  .card-badge{font-size:12px;font-weight:500;padding:4px 12px;border-radius:var(--radius-full);font-family:var(--display)}
+  .badge-done{background:#e6f4ea;color:var(--green)}.badge-award{background:#fef7e0;color:#e37400}
+  .card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+  .card-tags span{font-size:11px;font-family:var(--mono);background:var(--surface2);color:var(--text3);padding:4px 10px;border-radius:4px;letter-spacing:.02em}
+  .card-list{padding-left:20px;margin-bottom:20px}
+  .card-list li{font-size:14px;color:var(--text2);margin-bottom:6px;line-height:1.55}
+  .card-list li::marker{color:var(--border)}
+  .card-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--blue);text-decoration:none;font-family:var(--display);padding:8px 0;transition:gap .2s}
+  .card-link:hover{gap:12px}
+  .card-link::after{content:'→';font-size:18px;transition:transform .2s}
+  .card-link:hover::after{transform:translateX(4px)}
+
+  /* Card hover glow */
+  .card-glow{position:absolute;inset:-2px;border-radius:calc(var(--radius) + 2px);opacity:0;transition:opacity .4s;pointer-events:none;z-index:-1}
+  .card:nth-child(1) .card-glow{background:linear-gradient(135deg,rgba(66,133,244,.15),transparent 60%)}
+  .card:nth-child(2) .card-glow{background:linear-gradient(135deg,rgba(52,168,83,.15),transparent 60%)}
+  .card:nth-child(3) .card-glow{background:linear-gradient(135deg,rgba(251,188,4,.15),transparent 60%)}
+  .card:hover .card-glow{opacity:1}
+
+  /* ===== FOOTER ===== */
+  .footer{padding:48px 0 64px;text-align:center;border-top:1px solid var(--border)}
+  .footer-email{font-size:16px;color:var(--blue);text-decoration:none;font-family:var(--mono)}
+  .footer-email:hover{text-decoration:underline}
+  .footer-copy{font-size:12px;color:var(--text3);margin-top:16px}
+
+  /* ===== SCROLL REVEAL ===== */
+  .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s cubic-bezier(.4,0,.2,1),transform .6s cubic-bezier(.4,0,.2,1)}
+  .reveal.visible{opacity:1;transform:translateY(0)}
+  .reveal-delay-1{transition-delay:.1s}
+  .reveal-delay-2{transition-delay:.2s}
+  .reveal-delay-3{transition-delay:.3s}
+
+  @media(max-width:640px){
+    .hero{min-height:auto;padding:100px 0 60px}
+    .hero h1{font-size:32px}.hero-tagline{font-size:18px}
+    .card-body{padding:22px 20px}.card-title{font-size:18px}
+    .section-title{font-size:28px}.nav-links{display:none}
+    .shape{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="color-bar"></div>
+<div class="cursor" id="cursor"></div>
+
+<!-- Nav -->
+<nav class="nav-bar" id="navbar">
+  <span class="nav-logo">YW</span>
+  <ul class="nav-links">
+    <li><a href="#skills">技能</a></li>
+    <li><a href="#projects">项目</a></li>
+    <li><a href="#contact">联系</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="shape"></div><div class="shape"></div><div class="shape"></div><div class="shape"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-avatar">W</div>
+    <h1>Hi, I'm <span class="gradient-text">Yang Wenjie</span></h1>
+    <div class="hero-tagline">
+      <span class="word">生物医学工程</span>
+      <span class="word">医疗器械检测方向</span>
+      <span class="word">Python 开发</span>
+      <span class="word">技术驱动质量</span>
+    </div>
+    <p class="hero-sub">构建工具让医疗设备检测更智能、更高效</p>
+    <div class="hero-actions">
+      <a href="resume.pdf" class="btn btn-filled" download>下载简历 PDF</a>
+      <a href="https://github.com/enjie-Y" class="btn btn-outlined" target="_blank">GitHub</a>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+
+  <!-- SKILLS -->
+  <section class="section" id="skills">
+    <div class="section-label reveal">Skills</div>
+    <h2 class="section-title reveal">技术能力</h2>
+    <p class="section-sub reveal">编程语言、工具链与专业标准</p>
+    <div class="skills-grid reveal">
+      <span class="chip chip--lang">Python</span><span class="chip chip--lang">C</span>
+      <span class="chip chip--tool">NumPy</span><span class="chip chip--tool">SciPy</span>
+      <span class="chip chip--tool">Pandas</span><span class="chip chip--tool">Matplotlib</span>
+      <span class="chip chip--tool">ReportLab</span><span class="chip chip--tool">OpenPyXL</span>
+      <span class="chip chip--tool">WFDB</span><span class="chip chip--tool">Flask</span>
+      <span class="chip chip--lang">STM32</span><span class="chip chip--lang">Keil MDK</span>
+      <span class="chip chip--tool">I2C / SPI / UART</span>
+      <span class="chip chip--std">GB 9706.1</span><span class="chip chip--std">IPC-A-610</span>
+      <span class="chip chip--tool">CAD / SolidWorks</span><span class="chip chip--tool">Git / GitHub</span>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section class="section" id="projects">
+    <div class="section-label reveal">Projects</div>
+    <h2 class="section-title reveal">项目作品</h2>
+    <p class="section-sub reveal">三个已完成的独立项目，源码 + 在线演示</p>
+    <div class="projects-grid">
+
+      <article class="card reveal">
+        <div class="card-glow"></div><div class="card-top-bar"></div>
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="card-title">ECG 心电信号快速分析工具</h3>
+            <span class="card-badge badge-done">已完成</span>
+          </div>
+          <div class="card-tags"><span>Python</span><span>SciPy</span><span>Matplotlib</span><span>WFDB</span><span>Flask</span></div>
+          <ul class="card-list">
+            <li>基于 MIT-BIH 公开数据库与 Pan-Tompkins 算法，完整心电信号分析管线</li>
+            <li>50Hz 陷波 + 0.5-40Hz 带通滤波 + R 峰检测（1810 个，72.0 BPM）</li>
+            <li>4 面板分析报告 + Web 交互界面，支持 8 种 MIT-BIH 记录号</li>
+          </ul>
+          <a href="https://github.com/enjie-Y/ecg-analyzer" class="card-link" target="_blank">查看源码</a>
+        </div>
+      </article>
+
+      <article class="card reveal reveal-delay-1">
+        <div class="card-glow"></div><div class="card-top-bar"></div>
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="card-title">医疗器械电气安全自动测试与报告系统</h3>
+            <span class="card-badge badge-done">已完成</span>
+          </div>
+          <div class="card-tags"><span>Python</span><span>Pandas</span><span>ReportLab</span><span>OpenPyXL</span><span>Flask</span></div>
+          <ul class="card-list">
+            <li>GB 9706.1-2020 标准，15 项限值数据库，自动 Pass/Fail 判定</li>
+            <li>一键 PDF 检测报告（表格 + 图表 + 标准引用 + 结论）</li>
+            <li>Excel 批量导入 + Web 界面，降本增效</li>
+          </ul>
+          <a href="https://github.com/enjie-Y/medtest-report" class="card-link" target="_blank">查看源码</a>
+        </div>
+      </article>
+
+      <article class="card reveal reveal-delay-2">
+        <div class="card-glow"></div><div class="card-top-bar"></div>
+        <div class="card-body">
+          <div class="card-header">
+            <h3 class="card-title">全国生命科学竞赛 — 光电检测系统开发</h3>
+            <span class="card-badge badge-award">省级二等奖</span>
+          </div>
+          <div class="card-tags"><span>荧光检测</span><span>微弱信号采集</span><span>电路设计</span><span>数据分析</span></div>
+          <ul class="card-list">
+            <li>搭建荧光传感器微弱信号采集测试平台，5 组浓度梯度验证</li>
+            <li>优化采集电路与滤波参数，显著提升系统信噪比</li>
+            <li>撰写实验分析章节与汇报 PPT，助力项目获奖</li>
+          </ul>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+</div>
+
+<footer class="footer reveal" id="contact">
+  <a href="mailto:enjiey881@163.com" class="footer-email">enjiey881@163.com</a>
+  <p class="footer-copy">&copy; 2026 enjie-Y &mdash; Built with &#9829;</p>
+</footer>
+
+<script>
+// Custom cursor
+const cursor=document.getElementById('cursor');
+let mouseX=0,mouseY=0,cursorX=0,cursorY=0;
+document.addEventListener('mousemove',e=>{mouseX=e.clientX;mouseY=e.clientY;cursor.classList.add('visible')});
+document.addEventListener('mouseleave',()=>cursor.classList.remove('visible'));
+document.querySelectorAll('a,button,.card,.chip').forEach(el=>{el.addEventListener('mouseenter',()=>cursor.classList.add('hover'));el.addEventListener('mouseleave',()=>cursor.classList.remove('hover'))});
+function animateCursor(){cursorX+=(mouseX-cursorX)*.15;cursorY+=(mouseY-cursorY)*.15;cursor.style.left=cursorX+'px';cursor.style.top=cursorY+'px';requestAnimationFrame(animateCursor)}
+animateCursor();
+
+// Scroll effects
+const navbar=document.getElementById('navbar');
+window.addEventListener('scroll',()=>{navbar.classList.toggle('scrolled',window.scrollY>60)});
+
+// Card tilt
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const rect=card.getBoundingClientRect();
+    const x=e.clientX-rect.left;const y=e.clientY-rect.top;
+    const cx=rect.width/2;const cy=rect.height/2;
+    const rx=((y-cy)/cy)*4;const ry=((cx-x)/cx)*4;
+    card.style.transform=`perspective(1200px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+    card.style.boxShadow=`${ry*2}px ${rx*2}px 24px rgba(0,0,0,.1)`;
+  });
+  card.addEventListener('mouseleave',()=>{card.style.transform='perspective(1200px) rotateX(0) rotateY(0)';card.style.boxShadow=''});
+});
+
+// Scroll reveal
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>

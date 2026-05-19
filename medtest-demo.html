@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>医疗器械电气安全自动测试与报告系统</title>
+<style>
+:root{
+  --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --text2:#86868b; --text3:#aeaeb2;
+  --blue:#0071e3; --green:#34c759; --red:#ff3b30; --amber:#ff9500;
+  --border:#e5e5ea; --shadow:0 2px 12px rgba(0,0,0,.06); --shadow-lg:0 8px 30px rgba(0,0,0,.08);
+  --radius:16px; --radius-sm:10px;
+  --font:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SF Mono','Consolas',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.hero{background:#fff;border-bottom:1px solid var(--border);text-align:center;padding:48px 24px 36px}
+.hero h1{font-size:32px;font-weight:700;letter-spacing:-.02em}
+.hero p{font-size:15px;color:var(--text2);margin-top:8px}
+.container{max-width:960px;margin:0 auto;padding:28px 24px 60px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.metric{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);text-align:center}
+.metric .val{font-size:36px;font-weight:700;font-family:var(--mono)}
+.metric .val.blue{color:var(--blue)}.metric .val.green{color:var(--green)}.metric .val.red{color:var(--red)}
+.metric .lbl{font-size:12px;color:var(--text2);margin-top:8px}
+.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;font-size:11px;text-transform:uppercase}
+td{padding:9px 12px;border-bottom:1px solid #f0f0f5;font-family:var(--mono);font-size:12px}
+tr.fail td{color:var(--red)}
+.tag{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:600}
+.tag-pass{background:rgba(52,199,89,.12);color:var(--green)}.tag-fail{background:rgba(255,59,48,.12);color:var(--red)}
+.gauge-wrap{width:120px;height:120px;margin:16px auto 0;position:relative}
+.gauge-wrap svg{transform:rotate(-90deg)}
+.gauge-text{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:26px;font-weight:700}
+.chart-box{height:280px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:500;border:none;cursor:pointer;font-family:var(--font);transition:all .15s;text-decoration:none}
+.btn-primary{background:var(--blue);color:#fff}.btn-primary:hover{background:#0077ed}
+.btn-outline{background:var(--card);color:var(--blue);border:1px solid var(--border)}.btn-outline:hover{border-color:var(--blue)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:20px}
+#spinner{display:none;height:2px;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:scan 1.4s ease-in-out infinite;margin:12px 0}
+#spinner.on{display:block}
+@keyframes scan{0%{transform:translateX(-100%)}100%{transform:translateX(400%)}}
+.footer{text-align:center;padding:32px;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+.footer a{color:var(--blue);text-decoration:none}
+@media(max-width:640px){.metrics{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>医疗器械电气安全自动测试与报告系统</h1>
+  <p>MedTest Studio — 基于 GB 9706.1-2020 标准 · 15 项限值数据库 · 一键 PDF 报告</p>
+</div>
+<div class="container">
+
+  <div class="actions">
+    <button class="btn btn-primary" onclick="runDemo()">生成模拟数据并分析</button>
+    <button class="btn btn-outline" id="btn-pdf" disabled onclick="alert('在线演示版不支持 PDF 下载。\n本地运行 start.bat 后可下载正式 PDF 报告。')">下载 PDF 报告</button>
+    <span style="font-size:13px;color:var(--text2);margin-left:auto" id="status">就绪 — 点击按钮开始</span>
+  </div>
+  <div id="spinner"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+    <div class="card">
+      <div class="card-title">判定结果</div>
+      <div class="metrics" style="margin-bottom:0">
+        <div class="metric"><div class="val blue" id="mt-total">--</div><div class="lbl">检测总数</div></div>
+        <div class="metric"><div class="val green" id="mt-pass">--</div><div class="lbl">合格</div></div>
+        <div class="metric"><div class="val red" id="mt-fail">--</div><div class="lbl">不合格</div></div>
+      </div>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--border)" stroke-width="8"/><circle cx="60" cy="60" r="52" fill="none" stroke="var(--green)" stroke-width="8" stroke-linecap="round" id="g-arc" stroke-dasharray="326.7" stroke-dashoffset="326.7"/></svg>
+        <div class="gauge-text" id="g-text">--%</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">各项目合格率</div>
+      <div class="chart-box"><canvas id="chart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">检测数据明细 · GB 9706.1-2020 自动判定</div>
+    <div class="table-wrap">
+      <table><thead><tr><th>样本编号</th><th>测试项目</th><th>实测值</th><th>限值</th><th>判定</th><th>条款</th></tr></thead>
+        <tbody id="tb"><tr><td colspan="6" style="text-align:center;color:var(--text2);padding:40px">点击上方按钮开始分析</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">GB 9706.1-2020 · 内置限值数据库（部分）</div>
+    <div class="table-wrap">
+      <table>
+        <tr><th>类别</th><th>测试项</th><th>限值</th><th>条款</th></tr>
+        <tr><td>接地</td><td>接地阻抗</td><td>≤ 0.1 Ohm</td><td>8.6.3</td></tr>
+        <tr><td>漏电流</td><td>对地漏电流（正常）</td><td>≤ 0.5 mA</td><td>8.7.3</td></tr>
+        <tr><td>漏电流</td><td>对地漏电流（单一故障）</td><td>≤ 1.0 mA</td><td>8.7.3</td></tr>
+        <tr><td>漏电流</td><td>外壳漏电流（正常）</td><td>≤ 0.1 mA</td><td>8.7.3</td></tr>
+        <tr><td>耐压</td><td>耐压测试（基本绝缘）</td><td>≥ 1500 V</td><td>8.8.3</td></tr>
+        <tr><td>绝缘</td><td>绝缘电阻</td><td>≥ 2.0 MOhm</td><td>8.8.3</td></tr>
+        <tr><td>距离</td><td>电气间隙（基本绝缘）</td><td>≥ 2.5 mm</td><td>8.9</td></tr>
+        <tr><td>距离</td><td>爬电距离（基本绝缘）</td><td>≥ 3.0 mm</td><td>8.9</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <a href="https://github.com/enjie-Y/medtest-report" class="btn btn-primary" target="_blank">GitHub 查看源码</a>
+  </div>
+</div>
+<div class="footer">
+  <p>Yang Wenjie · <a href="mailto:enjiey881@163.com">enjiey881@163.com</a> · <a href="https://github.com/enjie-Y">github.com/enjie-Y</a></p>
+</div>
+
+<script>
+(function loadChart(cb){
+  if(window.Chart){cb();return}
+  var s=document.createElement('script');
+  s.src='https://cdn.bootcdn.net/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
+  s.onerror=function(){var f=document.createElement('script');f.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';f.onload=cb;document.head.appendChild(f)};
+  s.onload=cb;document.head.appendChild(s);
+})(function(){});
+
+var D={
+  total:27,pass_count:18,fail_count:9,pass_rate:66.7,
+  item_stats:[
+    {name:"接地阻抗",rate:66.7},{name:"对地漏电(正常)",rate:66.7},{name:"对地漏电(故障)",rate:100},{name:"外壳漏电(正常)",rate:33.3},{name:"耐压(基本绝缘)",rate:33.3},{name:"绝缘电阻",rate:33.3},{name:"电气间隙(基本)",rate:33.3},{name:"爬电距离(基本)",rate:66.7},{name:"患者漏电(正常)",rate:66.7}
+  ],
+  records:[
+    {s:"XG200-001",t:"接地阻抗",v:0.08,u:"Ohm",l:0.1,op:"≤",r:"PASS",c:"8.6.3"},
+    {s:"XG200-001",t:"对地漏电流_正常",v:0.32,u:"mA",l:0.5,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-001",t:"对地漏电流_单一故障",v:0.85,u:"mA",l:1.0,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-001",t:"外壳漏电流_正常",v:0.12,u:"mA",l:0.1,op:"≤",r:"FAIL",c:"8.7.3"},
+    {s:"XG200-001",t:"耐压测试_基本绝缘",v:1420,u:"V",l:1500,op:"≥",r:"FAIL",c:"8.8.3"},
+    {s:"XG200-001",t:"绝缘电阻",v:1.8,u:"MOhm",l:2.0,op:"≥",r:"FAIL",c:"8.8.3"},
+    {s:"XG200-001",t:"电气间隙_基本绝缘",v:2.1,u:"mm",l:2.5,op:"≥",r:"FAIL",c:"8.9"},
+    {s:"XG200-001",t:"爬电距离_基本绝缘",v:3.5,u:"mm",l:3.0,op:"≥",r:"PASS",c:"8.9"},
+    {s:"XG200-001",t:"患者漏电流_正常",v:0.08,u:"mA",l:0.1,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-002",t:"接地阻抗",v:0.09,u:"Ohm",l:0.1,op:"≤",r:"PASS",c:"8.6.3"},
+    {s:"XG200-002",t:"对地漏电流_正常",v:0.55,u:"mA",l:0.5,op:"≤",r:"FAIL",c:"8.7.3"},
+    {s:"XG200-002",t:"对地漏电流_单一故障",v:0.78,u:"mA",l:1.0,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-002",t:"外壳漏电流_正常",v:0.06,u:"mA",l:0.1,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-002",t:"耐压测试_基本绝缘",v:1580,u:"V",l:1500,op:"≥",r:"PASS",c:"8.8.3"},
+    {s:"XG200-002",t:"绝缘电阻",v:2.4,u:"MOhm",l:2.0,op:"≥",r:"PASS",c:"8.8.3"},
+    {s:"XG200-002",t:"电气间隙_基本绝缘",v:2.8,u:"mm",l:2.5,op:"≥",r:"PASS",c:"8.9"},
+    {s:"XG200-002",t:"爬电距离_基本绝缘",v:2.5,u:"mm",l:3.0,op:"≥",r:"FAIL",c:"8.9"},
+    {s:"XG200-002",t:"患者漏电流_正常",v:0.11,u:"mA",l:0.1,op:"≤",r:"FAIL",c:"8.7.3"},
+    {s:"XG200-003",t:"接地阻抗",v:0.11,u:"Ohm",l:0.1,op:"≤",r:"FAIL",c:"8.6.3"},
+    {s:"XG200-003",t:"对地漏电流_正常",v:0.28,u:"mA",l:0.5,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-003",t:"对地漏电流_单一故障",v:0.92,u:"mA",l:1.0,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-003",t:"外壳漏电流_正常",v:0.09,u:"mA",l:0.1,op:"≤",r:"PASS",c:"8.7.3"},
+    {s:"XG200-003",t:"耐压测试_基本绝缘",v:1610,u:"V",l:1500,op:"≥",r:"PASS",c:"8.8.3"},
+    {s:"XG200-003",t:"绝缘电阻",v:2.2,u:"MOhm",l:2.0,op:"≥",r:"PASS",c:"8.8.3"},
+    {s:"XG200-003",t:"电气间隙_基本绝缘",v:2.3,u:"mm",l:2.5,op:"≥",r:"FAIL",c:"8.9"},
+    {s:"XG200-003",t:"爬电距离_基本绝缘",v:3.2,u:"mm",l:3.0,op:"≥",r:"PASS",c:"8.9"},
+    {s:"XG200-003",t:"患者漏电流_正常",v:0.07,u:"mA",l:0.1,op:"≤",r:"PASS",c:"8.7.3"}
+  ]
+};
+
+function runDemo(){
+  document.getElementById('spinner').classList.add('on');
+  document.getElementById('status').textContent='分析中...';
+  setTimeout(function(){
+    render(D);
+    document.getElementById('spinner').classList.remove('on');
+    document.getElementById('status').textContent='分析完成 — 3 样本 × 9 检测项';
+  },500);
+}
+
+function render(d){
+  document.getElementById('mt-total').textContent=d.total;
+  document.getElementById('mt-pass').textContent=d.pass_count;
+  document.getElementById('mt-fail').textContent=d.fail_count;
+  var r=d.pass_rate||0;
+  document.getElementById('g-arc').setAttribute('stroke-dashoffset',326.7*(1-r/100));
+  document.getElementById('g-arc').style.stroke=r>=90?'var(--green)':r>=70?'var(--amber)':'var(--red)';
+  document.getElementById('g-text').textContent=r.toFixed(0)+'%';
+  document.getElementById('btn-pdf').disabled=false;
+
+  var tb=document.getElementById('tb');
+  tb.innerHTML='';
+  d.records.forEach(function(x){
+    var tr=document.createElement('tr');
+    if(x.r==='FAIL')tr.className='fail';
+    tr.innerHTML='<td>'+x.s+'</td><td>'+x.t+'</td><td>'+x.v+' '+x.u+'</td><td>'+x.op+' '+x.l+' '+x.u+'</td><td><span class="tag '+(x.r==='PASS'?'tag-pass':'tag-fail')+'">'+x.r+'</span></td><td>'+x.c+'</td>';
+    tb.appendChild(tr);
+  });
+
+  if(window._c)window._c.destroy();
+  try{
+    var ctx=document.getElementById('chart').getContext('2d');
+    var its=d.item_stats||[];
+    window._c=new Chart(ctx,{type:'bar',data:{labels:its.map(function(i){return i.name}),datasets:[{data:its.map(function(i){return i.rate}),backgroundColor:its.map(function(i){return i.rate>=90?'#34c759':i.rate>=70?'#ff9500':'#ff3b30'}),borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#86868b',font:{size:10}},grid:{display:false}},y:{min:0,max:100,ticks:{color:'#86868b',callback:function(v){return v+'%'}},grid:{color:'#f0f0f5'}}}}});
+  }catch(e){}
+}
+</script>
+</body>
+</html>

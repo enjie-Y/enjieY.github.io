@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ECG 心电信号快速分析工具</title>
+<style>
+:root{
+  --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --text2:#86868b; --text3:#aeaeb2;
+  --blue:#0071e3; --green:#34c759; --red:#ff3b30; --amber:#ff9500;
+  --border:#e5e5ea; --shadow:0 2px 12px rgba(0,0,0,.06); --shadow-lg:0 8px 30px rgba(0,0,0,.08);
+  --radius:16px; --radius-sm:10px;
+  --font:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  --mono:'SF Mono','Consolas',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+.hero{background:#fff;border-bottom:1px solid var(--border);text-align:center;padding:48px 24px 36px}
+.hero h1{font-size:32px;font-weight:700;letter-spacing:-.02em}
+.hero p{font-size:15px;color:var(--text2);margin-top:8px}
+.container{max-width:960px;margin:0 auto;padding:28px 24px 60px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.metric{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);text-align:center}
+.metric .val{font-size:36px;font-weight:700;font-family:var(--mono);color:var(--blue)}
+.metric .lbl{font-size:12px;color:var(--text2);margin-top:8px}
+.card{background:var(--card);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+.card-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px}
+.pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;padding:4px 0}
+.pipe-step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:13px;font-weight:500;text-align:center}
+.pipe-arrow{font-size:18px;color:var(--text3);margin:0 4px}
+.pipe-step.end{background:#e8f0fe;border-color:#d2e3fc;color:var(--blue)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 12px;border-bottom:2px solid var(--border);color:var(--text2);font-weight:500;font-size:11px;text-transform:uppercase}
+td{padding:9px 12px;border-bottom:1px solid #f0f0f5;font-family:var(--mono);font-size:12px}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 22px;border-radius:20px;font-size:13px;font-weight:500;text-decoration:none;font-family:var(--font);background:var(--blue);color:#fff;transition:all .15s}
+.btn:hover{background:#0077ed}
+.footer{text-align:center;padding:32px;color:var(--text3);font-size:13px;border-top:1px solid var(--border)}
+.footer a{color:var(--blue);text-decoration:none}
+@media(max-width:640px){.pipeline{gap:6px}.pipe-arrow{display:none}.pipe-step{font-size:11px;padding:8px 10px}.metrics{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>ECG 心电信号快速分析工具</h1>
+  <p>BioSignal Analyzer — 基于 MIT-BIH 数据库 + Pan-Tompkins 算法</p>
+</div>
+<div class="container">
+
+  <div class="metrics">
+    <div class="metric"><div class="val">1810</div><div class="lbl">R峰检出数</div></div>
+    <div class="metric"><div class="val">72.0</div><div class="lbl">平均心率 BPM</div></div>
+    <div class="metric"><div class="val">219 ms</div><div class="lbl">心率变异性 SDNN</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">分析管线 — Pan-Tompkins 算法</div>
+    <div class="pipeline">
+      <div class="pipe-step">原始 ECG</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">50Hz 陷波</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">0.5-40Hz 带通</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">微分</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">平方</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">移动窗口积分</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step">自适应阈值</div><span class="pipe-arrow">→</span>
+      <div class="pipe-step end">R峰检出</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">4 面板分析报告 — MIT-BIH Record 100</div>
+    <div style="text-align:center">
+      <img src="ecg_report_100.png" alt="ECG 4面板分析报告" style="max-width:100%;border-radius:10px;box-shadow:var(--shadow-lg)">
+    </div>
+    <p style="margin-top:10px;font-size:12px;color:var(--text2);text-align:center">
+      左上：原始信号 vs 滤波后 &nbsp;|&nbsp; 右上：R峰检出标记 &nbsp;|&nbsp; 左下：瞬时心率趋势 &nbsp;|&nbsp; 右下：RR间期分布直方图
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">技术说明</div>
+    <table>
+      <tr><th style="width:120px">组件</th><th>说明</th></tr>
+      <tr><td>数据源</td><td>MIT-BIH 心律失常数据库 (PhysioNet)，世界标准心电数据库</td></tr>
+      <tr><td>滤波</td><td>50Hz IIR 陷波 + 0.5-40Hz Butterworth 4阶带通滤波</td></tr>
+      <tr><td>算法</td><td>Pan-Tompkins 1985：微分→平方→150ms移动窗口→自适应双阈值</td></tr>
+      <tr><td>输出</td><td>4 面板 PNG 报告 + 交互式 Web 界面 (Flask)</td></tr>
+      <tr><td>技术栈</td><td>Python · SciPy · NumPy · Matplotlib · WFDB · Flask</td></tr>
+      <tr><td>源码</td><td><a href="https://github.com/enjie-Y/ecg-analyzer">github.com/enjie-Y/ecg-analyzer</a></td></tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;margin-top:8px">
+    <a href="https://github.com/enjie-Y/ecg-analyzer" class="btn" target="_blank">GitHub 查看源码</a>
+  </div>
+</div>
+<div class="footer">
+  <p>Yang Wenjie · <a href="mailto:enjiey881@163.com">enjiey881@163.com</a> · <a href="https://github.com/enjie-Y">github.com/enjie-Y</a></p>
+</div>
+</body>
+</html>
